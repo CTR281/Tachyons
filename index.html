@@ -1,22 +1,58 @@
 <!DOCTYPE html>
+<meta charset="utf-8"/>
 <html lang="en">
 <link href="index.css" rel="stylesheet">
+<script>
+    document.onscroll = function() {
+        if (window.innerHeight + window.scrollY > document.body.clientHeight) {
+            document.getElementById('arrow_down').style.opacity=0;
+            document.getElementById('arrow_up').style.opacity=1;
+        }else{
+            document.getElementById('arrow_down').style.opacity=1;
+            document.getElementById('arrow_up').style.opacity=0;
+        }
+    }
+</script>
 <article data-name="article-full-bleed-background">
-    <div class="cf" style="background:url(https://raw.githubusercontent.com/CTR281/Tachyons/master/resources/hearthstone_loading_screen.jpg) no-repeat center center fixed; background-size: cover;">
-        <div class="fl pa3 pa4-ns bg-white black-70 measure-narrow f3 times">
+    <div class="cf" style="background:url(./resources/hearthstone_screen2.jpg) no-repeat center center fixed; background-size: cover;">
+        <div class="fl">
+        <div class="sub90 pa3 pa4-ns bg-white black-70 measure-narrow f3 times">
             <header class="bb b--black-70 pv4">
-                <h3 class="f2 fw7 ttu tracked lh-title mt0 mb3 avenir">Prasat Suor Prat</h3>
-                <h4 class="f3 fw4 i lh-title mt0">Siem Reap, Cambodia</h4>
+                <h3 class="f2 fw7 ttu tracked lh-title mt0 mb3 avenir">Hearthstone cards</h3>
+                <h4 class="f3 fw4 i lh-title mt0">A brief analysis of the cards stats</h4>
             </header>
             <section class="pt5 pb4">
+                <span class="times lh-copy measure f4 mt0">
+                    The data comes from Kaggle.
+                <span class="pa4 lh-copy">
+                    <a class="f4 fw7 dib pa2 no-underline bg-animate bg-white hover-bg-light-blue black" href="https://www.kaggle.com/jeradrose/hearthstone-cards#cards_flat.csv" target="_blank">Have a look! </a>
+                </span>
+                </span>
+                <h1 class="f1"> Introduction</h1>
+                    <p>In this study we tried to:
+                        <ul>
+                        <li>Rate the power of a card according to the expansion set it belongs to;</li>
+                        <li>Rate the power of a card according to its species...</li>
+                        <li>...Dragon master race!</li>
+                        </ul>
+                    </p>
+                <img src="resources/dragon_vs_murloc.png" class="measure-narrow">
                 <p class="times lh-copy measure f4 mt0">
-                 Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ab ad aliquid architecto assumenda atque commodi delectus deserunt dicta dignissimos dolorem ea eaque eius enim error est et exercitationem harum ipsa labore laboriosam maxime molestiae mollitia nobis, odio omnis porro, quibusdam quod quos repellat repudiandae tempora tempore, ut vel veniam veritatis voluptas voluptates? Aut consequatur esse modi nostrum. Culpa delectus fuga numquam obcaecati provident quidem sequi tenetur. Architecto aspernatur at debitis dolorum illo labore minus mollitia officiis, placeat quaerat quasi quisquam quos, ratione sit tempore. Adipisci aliquam consequatur cupiditate dolorem dolores doloribus eos hic, ipsum nisi officiis quis recusandae, sequi ut.
                 </p>
-                <h1 class="f1"> Hearthstone cards analysis</h1>
-                <h2 class="f4">Introduction</h2>
-                <img src="resources/dragon_vs_murloc.png">
             </section>
         </div>
+        <div class="pa3 pa4-ns bg-white black-70 measure-narrow f3 times sub40">
+            <header class="bb b--black-70 pv4">
+                <h3 class="f2 fw7 ttu tracked lh-title mt0 mb3 avenir">Expansion set</h3>
+            </header>
+        </div>
+        </div>
+        <footer>
+            <div class="arrows">
+                <img src="resources/hearthstone_arrow_up.png" id="arrow_up">
+                <img src="resources/hearthstone_arrow_down.png" id="arrow_down">
+            </div>
+        </footer>
     </div>
 </article>
 </html>
