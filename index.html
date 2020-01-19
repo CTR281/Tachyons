@@ -1,22 +1,187 @@
 <!DOCTYPE html>
+<title>Hearthstone cards</title>
 <meta charset="utf-8"/>
 <html lang="en">
 <link href="index.css" rel="stylesheet">
+<link rel="icon" href="resources/icon.jpg">
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+      integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+      crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+        integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+        crossorigin=""></script>
+<!-- -->
+
+<!-- Jquery -->
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<!-- -->
+
+<!--d3JS -->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+<script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3-legend/2.24.0/d3-legend.js"></script>
+<!-- -->
+
 <script>
-    document.onscroll = function() {
-        if (window.innerHeight + window.scrollY > document.body.clientHeight) {
-            document.getElementById('arrow_down').style.opacity=0;
-            document.getElementById('arrow_up').style.opacity=1;
-        }else{
-            document.getElementById('arrow_down').style.opacity=1;
-            document.getElementById('arrow_up').style.opacity=0;
+    $(function() {
+        // CSS animation
+        $(document).scroll(function() {
+            if (window.innerHeight + window.scrollY > document.body.clientHeight) {
+                $("#arrow_down").css("opacity",0);
+                $('#arrow_up').css("opacity",1);
+            }else if(window.scrollY === 0){
+                $('#arrow_down').css("opacity",1);
+                $('#arrow_up').css("opacity",0);
+            }else{
+                $('#arrow_down').css("opacity",1);
+                $('#arrow_up').css("opacity",1);
+            }
+        });
+        $("#arrow_up").click(function() {
+            $("html, body").animate({ scrollTop: 0 }, "slow");
+            return false;
+        });
+        $("#arrow_up").on("mouseenter", function(event) {
+            if (!$(this).is(':animated')){
+                $(this).fadeOut(100);
+                $(this).fadeIn(500);
+            }
+        })
+        $("#arrow_down").click(function() {
+            $("html, body").animate({ scrollTop: $(document).height() }, "slow");
+            return false;
+        });
+        $("#arrow_down").on("mouseenter", function(event) {
+            if (!$(this).is(':animated')){
+                $(this).fadeOut(100);
+                $(this).fadeIn(500);
+            }
+        });
+
+        // Map
+
+        var geojson;
+        var info = L.control();
+
+        function getColor(x){
+            return x > 70000000 ? '#800026' :
+                x > 60000000  ? '#BD0026' :
+                    x > 40000000  ? '#E31A1C' :
+                        x > 20000000  ? '#FC4E2A' :
+                            x > 10000000  ? '#FD8D3C' :
+                                x > 500000   ? '#FEB24C' :
+                                    x > 100000   ? '#FED976' :
+                                        '#FFEDA0';
         }
-    }
+
+        function style(feature) {
+            return {
+                fillColor: getColor(feature.properties.surf_m2),
+                weight: 2,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
+            };
+        }
+
+        function highlightFeature(e) {
+            var layer = e.target;
+
+            layer.setStyle({
+                weight: 5,
+                color: '#666',
+                dashArray: '',
+                fillOpacity: 0.7
+            });
+
+            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                layer.bringToFront();
+            }
+
+            info.update(layer.feature.properties);
+
+        }
+
+        function resetHighlight(e) {
+            geojson.resetStyle(e.target);
+            info.update();
+        }
+
+        function zoomToFeature(e) {
+            map.fitBounds(e.target.getBounds());
+        }
+
+        function onEachFeature(feature, layer) {
+            layer.on({
+                mouseover: highlightFeature,
+                mouseout: resetHighlight,
+                click: zoomToFeature
+            });
+        }
+
+        function analyze(error, data) {
+            if (error) {
+                console.log(error);
+            }
+            geojson = L.geoJson(data, {
+                style: style,
+                onEachFeature: onEachFeature
+            }).addTo(map);
+
+            info.onAdd = function (map) {
+                this._div = L.DomUtil.create('div', 'info');
+                this.update();
+                return this._div;
+            };
+
+            info.update = function (props) {
+                this._div.innerHTML = '<h4>Densité des arrondissements de Marseille</h4>' +  (props ?
+                    '<b>Arrondissement: ' + props.arrondissement + '</b><br />Surface: ' + props.surf_m2 + '  m<sup>2</sup>'
+                    : 'Passer la souris sur un arrondissement');
+            };
+
+            info.addTo(map);
+
+        }
+
+        d3.queue()
+            .defer(d3.json, './arrondissements.geojson')
+            .await(analyze);
+
+        var map = L.map('mapid').setView([43.34142225, 5.437908238640205], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        L.marker([43.30994, 5.43759]).addTo(map)
+            .bindPopup('<br> Home')
+            .openPopup();
+
+    })
 </script>
 <article data-name="article-full-bleed-background">
+
+    <!-- TOC -->
+    <nav id="toc" class="toc" role = "navigation">
+        <div id = "toc_body" style = "width: 224px" aria-expanded="true">
+            <h6 data-toggle = "collapse" data-target = "#toc" title="">Table des matières</h6>
+            <ul>
+                <li><a href = "#Introduction">Introduction</a></li>
+                <li><a href = "#Expansion_set">Expansion</a></li>
+                <li><a href = "#Species" >Species</a></li>
+                <li><a href ="#Map">Map</a></li>
+            </ul>
+        </div>
+    </nav>
+    <!-- TOC_END -->
+
     <div class="cf" style="background:url(./resources/hearthstone_screen2.jpg) no-repeat center center fixed; background-size: cover;">
-        <div class="fl">
-        <div class="sub90 pa3 pa4-ns bg-white black-70 measure-narrow f3 times">
+        <div id="flow" class = "flex">
+        <div id="float left" class = "fl">
+        <div id="Introduction" class = "sub90 pa3 pa4-ns bg-white black-70 measure-narrow f3 times">
             <header class="bb b--black-70 pv4">
                 <h3 class="f2 fw7 ttu tracked lh-title mt0 mb3 avenir">Hearthstone cards</h3>
                 <h4 class="f3 fw4 i lh-title mt0">A brief analysis of the cards stats</h4>
@@ -32,19 +197,41 @@
                     <p>In this study we tried to:
                         <ul>
                         <li>Rate the power of a card according to the expansion set it belongs to;</li>
-                        <li>Rate the power of a card according to its species...</li>
-                        <li>...Dragon master race!</li>
+                        <li>Rate the power of a card according to its species and...</li>
+                        <li>...Turns out Dragons >> Murloc ! </li>
                         </ul>
                     </p>
                 <img src="resources/dragon_vs_murloc.png" class="measure-narrow">
-                <p class="times lh-copy measure f4 mt0">
-                </p>
             </section>
         </div>
-        <div class="pa3 pa4-ns bg-white black-70 measure-narrow f3 times sub40">
+        <div id = "Expansion_set" class="pa3 pa4-ns bg-white black-70 measure-narrow f3 times sub40">
             <header class="bb b--black-70 pv4">
                 <h3 class="f2 fw7 ttu tracked lh-title mt0 mb3 avenir">Expansion set</h3>
             </header>
+            <p class="times lh-copy measure f4 mt0">
+                We looked at the attack & health and the set the cards belonged too.
+            </p>
+            <img src="resources/Attack_set.png" class="measure-narrow">
+            <p class="times lh-copy measure f4 mt0">"Attack" denotes mean attack. Cards from the Gangs expansion seem to deal more damage.</p>
+            <img src="resources/Health_set.png" class="measure-narrow">
+            <p class="times lh-copy measure f4 mt0"> Health-wise, Gangs cards seem better then the others.</p>
+            <p class="times lh-copy measure f4 mt0">Here, have some heatmaps.</p>
+            <img src="resources/Rarity&set_attack.png" class="measure-narrow">
+            <img src="resources/Rarity&set_health.png" class="measure-narrow">
+        </div>
+        <div id = "Species" class="pa3 pa4-ns bg-white black-70 measure-narrow f3 times sub40">
+            <header class="bb b--black-70 pv4">
+                <h3 class="f2 fw7 ttu tracked lh-title mt0 mb3 avenir">Species</h3>
+            </header>
+            <img src="resources/Nb_species.png" class="measure-narrow">
+            <p class="times lh-copy measure f4 mt0">Beasts are the dominating species</p>
+        </div>
+        </div>
+        <div id = "Map" class="fl pa3 pa4-ns bg-white black-70 measure_full f3 times sub40">
+            <header class="bb b--black-70 pv4">
+                <h3 class="f2 fw7 ttu tracked lh-title mt0 mb3 avenir">Where the author lives:</h3>
+            </header>
+            <div id="mapid" class = "pa3" ></div>
         </div>
         </div>
         <footer>
